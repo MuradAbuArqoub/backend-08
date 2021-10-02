@@ -1,17 +1,24 @@
 'use strict';
 const axios = require('axios');
-
+let cacheMemory = {};
 function getMoviesHandler(req, res) {
 
     let searchQuery = req.query.city;
 
     let movieURL = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIES_API_KEY}&query=${searchQuery}`
-
+    if (cacheMemory[searchQuery] !== undefined) {
+        console.log('the cache contain data ')
+        console.log(cacheMemory);
+        res.send(cacheMemory[searchQuery]);
+    } else {
+        console.log('cache memory is empty hit the api')
+    }
     axios.get(movieURL).then(results => {
 
         let newArr = results.data.results.map(element => {
             return new Movies(element)
         })
+        cacheMemory[searchQuery] = newArr;
         res.send(newArr);
 
     })
